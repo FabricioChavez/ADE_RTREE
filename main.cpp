@@ -268,7 +268,7 @@ int main() {
     }
 
       testTreeStructure(tree);
-//    testSearch(tree, allPoints);
+      testSearch(tree, allPoints);
 //    testKNN(tree, allPoints);
 
     std::cout << "\nTodos los tests avanzados completados." << std::endl;

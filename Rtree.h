@@ -8,7 +8,7 @@
 #include <ctime>
 #include <cassert>
 #include <random>
-
+const float EPSILON = 1e-6f;
 typedef unsigned int  uint;
 typedef unsigned char uchar;
 
@@ -175,7 +175,10 @@ public:
     RNode(bool leaf) : isLeaf(leaf) {}
 
     RNode* insert(const Point &p, uchar maxEntries);
+
+    void search_(const MBB &query , std::vector<Point>& ans) const;
     std::vector<Point> search(const MBB &query) const;
+
 };
 
 RNode *RNode::linearSplitLeaf(uchar maxEntries) {
@@ -533,6 +536,33 @@ int RNode::choose_subtree(Point p) {
 
     return index;
 }
+void RNode::search_(const MBB &query, std::vector<Point> &ans) const {
+    if (isLeaf) {
+        for (const Point &p : points) {
+
+            if (p.x >= query.lower.x - EPSILON and p.x <= query.upper.x + EPSILON &&
+                p.y >= query.lower.y - EPSILON and p.y <= query.upper.y + EPSILON) {
+                ans.push_back(p);
+            }
+        }
+    } else {
+        for (auto* next_node : children) {
+
+
+            if (query.intersects(next_node->mbr) > -EPSILON) {
+                next_node->search_(query, ans);
+            }
+        }
+    }
+}
+std::vector<Point> RNode::search(const MBB &query) const {
+    std::vector<Point> ans;
+    search_(query,ans);
+
+    return  ans;
+}
+
+
 
 MBB MBB::computeFromNodes(const std::vector<RNode*> &nodes) {
 
@@ -901,5 +931,5 @@ std::pair<RNode *, RNode *> RTree::split_root(RNode *root) {
 }
 
 std::vector<Point> RTree::search(const MBB &query) const {
-    return std::vector<Point>();
+    return root->search(query);
 }

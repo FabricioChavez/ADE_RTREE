@@ -199,54 +199,54 @@ void testSearch(RTree &tree, const std::vector<Point> &allPoints) {
 
 
 
-//// Test: Verificar kNN
-//void testKNN(RTree &tree, const std::vector<Point> &allPoints) {
-//    std::cout << "Ejecutando tests de kNN..." << std::endl;
-//    const int numTests = 10;
-//    for (int t = 0; t < numTests; t++) {
-//        // Random query
-//        float qx = static_cast<float>(std::rand() % 100);
-//        float qy = static_cast<float>(std::rand() % 100);
-//        Point query(qx, qy);
-//
-//        // k entre 1 y 20
-//        int k = std::rand() % 20 + 1;
-//        std::cout << "Test " << (t + 1)
-//                  << ": Query (" << qx << ", " << qy << "), k = " << k << std::endl;
-//
-//        // Fuerza bruta
-//        std::vector<Point> naive = allPoints;
-//        std::sort(naive.begin(), naive.end(), [&query](const Point &a, const Point &b) {
-//            return a.distanceTo(query) < b.distanceTo(query);
-//        });
-//        if (naive.size() > (size_t)k)
-//            naive.resize(k);
-//
-//        // Tu solucion
-//        std::vector<Point> knn = tree.kNN(query, k);
-//
-//        if (knn.size() != naive.size()) {
-//            std::cerr << "Error en kNN: se esperaban " << naive.size()
-//                      << " puntos, pero se obtuvieron " << knn.size() << ".\n";
-//            continue;
-//        }
-//        for (size_t i = 0; i < knn.size(); i++) {
-//            float d1 = knn[i].distanceTo(query);
-//            float d2 = naive[i].distanceTo(query);
-//            if (!approxEqual(d1, d2)) {
-//                std::cerr << "Error en kNN: diferencia en la distancia del " << i
-//                          << "-esimo vecino (kNN=" << d1 << ", ingenuo=" << d2 << ").\n";
-//            }
-//        }
-//    }
-//    std::cout << "Pruebas de kNN completadas." << std::endl;
-//}
-//
-//
-//
-//
-//
-//
+// Test: Verificar kNN
+void testKNN(RTree &tree, const std::vector<Point> &allPoints) {
+    std::cout << "Ejecutando tests de kNN..." << std::endl;
+    const int numTests = 10;
+    for (int t = 0; t < numTests; t++) {
+        // Random query
+        float qx = static_cast<float>(std::rand() % 100);
+        float qy = static_cast<float>(std::rand() % 100);
+        Point query(qx, qy);
+
+        // k entre 1 y 20
+        int k = std::rand() % 20 + 1;
+        std::cout << "Test " << (t + 1)
+                  << ": Query (" << qx << ", " << qy << "), k = " << k << std::endl;
+
+        // Fuerza bruta
+        std::vector<Point> naive = allPoints;
+        std::sort(naive.begin(), naive.end(), [&query](const Point &a, const Point &b) {
+            return a.distanceTo(query) < b.distanceTo(query);
+        });
+        if (naive.size() > (size_t)k)
+            naive.resize(k);
+
+        // Tu solucion
+        std::vector<Point> knn = tree.kNN(query, k);
+
+        if (knn.size() != naive.size()) {
+            std::cerr << "Error en kNN: se esperaban " << naive.size()
+                      << " puntos, pero se obtuvieron " << knn.size() << ".\n";
+            continue;
+        }
+        for (size_t i = 0; i < knn.size(); i++) {
+            float d1 = knn[i].distanceTo(query);
+            float d2 = naive[i].distanceTo(query);
+            if (!approxEqual(d1, d2)) {
+                std::cerr << "Error en kNN: diferencia en la distancia del " << i
+                          << "-esimo vecino (kNN=" << d1 << ", ingenuo=" << d2 << ").\n";
+            }
+        }
+    }
+    std::cout << "Pruebas de kNN completadas." << std::endl;
+}
+
+
+
+
+
+
 
 
 
@@ -269,7 +269,7 @@ int main() {
 
       testTreeStructure(tree);
       testSearch(tree, allPoints);
-//    testKNN(tree, allPoints);
+      testKNN(tree, allPoints);
 
     std::cout << "\nTodos los tests avanzados completados." << std::endl;
 

@@ -26,6 +26,8 @@ public:
     }
 };
 
+
+
 class RNode;
 
 class MBB {
@@ -594,7 +596,7 @@ MBB MBB::unionOf(const MBB &a, const MBB &b) {
 // -------------------------------
 // Para Best-First
 // -------------------------------
-struct QueueEntry {
+struct  QueueEntry {
     float distance;  // Distancia desde el query al MBB
     bool isNode;     // Si true, es un nodo; si false, es un punto
     RNode* node;
@@ -932,4 +934,96 @@ std::pair<RNode *, RNode *> RTree::split_root(RNode *root) {
 
 std::vector<Point> RTree::search(const MBB &query) const {
     return root->search(query);
+}
+
+struct Point_Dist{
+
+    Point p_;
+    float d_;
+
+    Point_Dist(const Point&p , float  d):p_(p),d_(d){
+
+    }
+
+    bool operator<(const Point_Dist & other ) const{
+        return d_ < other.d_;
+    }
+};
+
+std::vector<Point> RTree::kNN(const Point &query, uchar k) const {
+    std::priority_queue<QueueEntry , std::vector<QueueEntry>, QueueEntryComparator> pq;
+
+
+    std::priority_queue<Point_Dist> ans;
+
+
+    QueueEntry explorer;
+    explorer.pt = query;
+    explorer.distance = root->mbr.distanceTo(query);
+    explorer.isNode = true;
+    explorer.node = root;
+
+    pq.push(explorer);
+
+
+    while (!pq.empty()){
+
+        QueueEntry current = pq.top();
+        pq.pop();
+
+        if(ans.size()>=k and current.distance > ans.top().d_){
+            break;
+        }
+
+        if(current.isNode){
+
+            if(current.node->isLeaf){
+               for(auto  ptr : current.node->points){
+                   float dist = query.distanceTo(ptr);
+                   pq.push({dist, false, nullptr, ptr});
+               }
+
+            }else{
+
+                for (RNode* child : current.node->children) {
+                    pq.push({child->mbr.distanceTo(query), true, child, Point()});
+                }
+            }
+
+
+        }else{
+
+            float dist = query.distanceTo(current.pt);
+
+
+            if (ans.size() < k) {
+                ans.push(Point_Dist(current.pt, dist));
+            }
+            else if (dist < ans.top().d_) {
+                ans.pop();  // Eliminar el más lejano
+                ans.push(Point_Dist(current.pt, dist));
+            }
+        }
+
+
+
+
+    }
+
+
+    std::vector<Point> answer;
+
+
+
+    while (!ans.empty()){
+        Point current = ans.top().p_;
+        answer.push_back(current);
+        ans.pop();
+    }
+
+    std::reverse(answer.begin(), answer.end());
+
+    return answer;
+
+
 }
